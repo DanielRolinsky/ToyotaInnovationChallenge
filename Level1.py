@@ -22,7 +22,7 @@ print("running main")
 
 #start processes
 #add starter functions here
-
+robot.start_keyboard_control()   #this one is just pure keyboard control
 #rclpy,spin_once is a function that updates the ros topics once
 rclpy.spin_once(robot, timeout_sec=0.1)
 
@@ -30,10 +30,10 @@ rclpy.spin_once(robot, timeout_sec=0.1)
 try:
     print("Entering the robot loop which cycles until the srcipt is stopped")
     while True:
-
+        if(robot.detect_obstacle()):
+            print("help")
         #rclpy,spin_once is a function that updates the ros topics once
         rclpy.spin_once(robot, timeout_sec=0.1)
-
         #Add looping functionality here
         
 except KeyboardInterrupt:
