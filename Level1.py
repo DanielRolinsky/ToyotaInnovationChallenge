@@ -19,7 +19,8 @@ if not "robot" in globals():
 
 #Debug messaging 
 print("running main")
-
+# aspoijfbiadsnfkoajisdfnkasjdbfnokasdfajsb;idfo;adn;inoafieawawef
+##Hello this is a rando0m test comment 
 #start processes
 #add starter functions here
 robot.start_keyboard_control()   #this one is just pure keyboard control
