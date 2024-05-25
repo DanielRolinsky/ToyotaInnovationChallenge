@@ -7,7 +7,7 @@ This project houses the necessary software, simulation tools and code scaffoldin
 
 To run the simulation:
 1. `cd simulation_files`
-2. `./install_sim_files.sh`
+2. `./install_sim_files.sh`q
 3. `ros2 launch turtlebot_tic_world.launch.py`
 
 Note: if you want to use a TurtleBot with a camera, please type `export TURTLEBOT3_MODEL=waffle_pi` in your terminal before running step 3 above. By default the environment variable `TURTLEBOT3_MODEL` is set to `burger` which only has a LiDAR.
