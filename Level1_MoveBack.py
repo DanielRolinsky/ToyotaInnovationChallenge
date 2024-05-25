@@ -9,7 +9,7 @@ import math
 if not rclpy.ok():
     rclpy.init()
 
-TMMC_Wrapper.is_SIM = True
+TMMC_Wrapper.is_SIM = False
 if not TMMC_Wrapper.is_SIM:
     #Specify hardware api
     TMMC_Wrapper.use_hardware()
@@ -44,11 +44,11 @@ try:
             print(">>>minDis & minAngle is: " + str(minDistance) + ", " +str(minAngle))
             if minDistance != -1 and minDistance <= CONST_boundary:
                 robot.stop_keyboard_control()
-                robot.set_cmd_vel(CONST_reverseVelocity, 0, 0.25)
+                robot.set_cmd_vel(-CONST_reverseVelocity, 0, 1)
                 robot.set_cmd_vel(0, 0, 1)
                 minDistance, minAngle = robot.detect_obstacle(robot.last_scan_msg.ranges)
                 disToTravel = CONST_boundary + 0.05 - minDistance
-                robot.set_cmd_vel(CONST_reverseVelocity, 0, disToTravel/CONST_reverseVelocity + 0.5) #Forward is backwards b/c lidar is on the back
+                robot.set_cmd_vel(CONST_reverseVelocity, 0, disToTravel/CONST_reverseVelocity + 1) #Forward is backwards b/c lidar is on the back
                 robot.start_keyboard_control()
 
 
