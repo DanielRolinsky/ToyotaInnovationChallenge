@@ -48,9 +48,16 @@ try:
 
         stop_sign_detected, x1, y1, x2, y2 = robot.ML_predict_stop_sign(model, img)
 
-
+        distance_to_stop = -1
         if(stop_sign_detected):
-            print("STOP!")
+            distance_to_stop = ((2*147.6375*640)/((y2-y1)*31.75))
+            print("Distance to Stop: "+ distance_to_stop)
+        if(distance_to_stop<10):
+            robot.stop_keyboard_control()
+            robot.set_cmd_vel(0, 0, 1)
+            time.sleep(200)
+            robot.start_keyboard_control()
+
 
         #rclpy,spin_once is a function that updates the ros topics once
         rclpy.spin_once(robot, timeout_sec=0.1)
