@@ -108,6 +108,7 @@ class Robot(Node):
         self.battery_state_future = rclpy.Future()
         self.battery_state_subscription = self.create_subscription(BatteryState,'/battery_state',self.battery_state_listener_callback,qos_profile_sensor_data)
         self.battery_state_subscription  # prevent unused variable warning
+        self.direction = 0
 
         global is_SIM
         if (not(is_SIM)): 
@@ -447,6 +448,7 @@ class Robot(Node):
                     self.turn_right()
             def on_release(key):
                 self.send_cmd_vel(0.0, 0.0)
+                self.direction = 0
                 print("Key released and robot stopping.")
             self.keyboard_listener = Listener(on_press=on_press, on_release=on_release)
             self.keyboard_listener.start()
@@ -461,9 +463,6 @@ class Robot(Node):
         else: 
             print("Keyb list is not running")
 
-
-
-
     def on_press(self, key):
         try:
             if hasstr(key, 'char') and key.char in self.action_mape:
@@ -472,9 +471,11 @@ class Robot(Node):
             pass
 
     def move_forward(self):
+        self.direction = 1
         self.send_cmd_vel(1.0*CONST_speed_control, 0.0)
     
     def move_backward(self):
+        self.direction = -1
         self.send_cmd_vel(-1.0*CONST_speed_control, 0.0)
     
     def turn_left(self):
@@ -788,17 +789,3 @@ class Robot(Node):
 
         return stop_sign_detected, x1, y1, x2, y2   
 # Custom Functions
-    #Function to return the direction if it is going forward or backward
-    def get_direction(self):
-        if self.keyboard_listener is None:
-            def on_press(key):
-                try:
-                    print(f"Key {key.char} pressed in new function")
-                    key_char = key.char
-                except AttributeError:
-                    print(f"Special key {key} pressed")
-                    key_char = str(key) #---the below cluster of if statements can be removed to make level one more challenging---
-                if key_char == 'w':
-                    return 1
-                if key_char == 's':
-                    return -1
