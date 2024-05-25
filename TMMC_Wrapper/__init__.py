@@ -50,7 +50,7 @@ is_SIM = False #to disable some functions that can not be used on the sim
 
 #not sure if we need , modify later, seems like an init thing
 def use_hardware():
-    global is_SIM
+    global is_SIM 
     if not is_SIM:
         # import ROS settings for working locally or with the robot (equivalent of ros_local/ros_robot in the shell)
         env_file = ".env_ros_robot"
@@ -96,20 +96,31 @@ class Robot(Node):
         self.imu_future = rclpy.Future()
         self.imu_subscription = self.create_subscription(Imu,'/imu',self.imu_listener_callback,qos_profile_sensor_data)
         self.imu_subscription  # prevent unused variable warning
+
+        self.odom_future = rclpy.Future()
+        self.odom_subscription = self.create_subscription(Odometry, '/odom', self.odom_listener_callback, qos_profile_sensor_data)
+        self.odom_subscription  # prevent unused variable warning
         
         self.image_future = rclpy.Future()
-        self.image_subscription = self.create_subscription(Image,'/oakd/rgb/preview/image_raw',self.image_listener_callback,qos_profile_sensor_data)
-        self.image_subscription  # prevent unused variable warning
+        if is_SIM:
+            self.image_subscription =  self.create_subscription(Image,'/camera/image_raw',self.image_listener_callback,qos_profile_sensor_data)
+        else:
+            self.image_subscription = self.create_subscription(Image,'/oakd/rgb/preview/image_raw',self.image_listener_callback,qos_profile_sensor_data)
+            self.image_subscription  # prevent unused variable warning
+
         
         self.camera_info_future = rclpy.Future()
-        self.camera_info_subscription = self.create_subscription(CameraInfo,'/oakd/rgb/preview/camera_info',self.camera_info_listener_callback,qos_profile_sensor_data)
-        self.camera_info_subscription  # prevent unused variable warning
+        if is_SIM:
+            self.camera_info_subscription = self.create_subscription(CameraInfo,'/camera/camera_info',self.camera_info_listener_callback,qos_profile_sensor_data)
+        else:
+            self.camera_info_subscription = self.create_subscription(CameraInfo,'/oakd/rgb/preview/camera_info',self.camera_info_listener_callback,qos_profile_sensor_data)
+            self.camera_info_subscription  # prevent unused variable warning
+
         
         self.battery_state_future = rclpy.Future()
         self.battery_state_subscription = self.create_subscription(BatteryState,'/battery_state',self.battery_state_listener_callback,qos_profile_sensor_data)
         self.battery_state_subscription  # prevent unused variable warning
 
-        global is_SIM
         if (not(is_SIM)): 
             self.dock_client = ActionClient(self, Dock, '/dock')
             self.undock_client = ActionClient(self, Undock, '/undock')
@@ -124,7 +135,33 @@ class Robot(Node):
 
         self.cmd_vel_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
         self.keyboard_listener = None #temp placeholder for the keyboard listener
+
+    def convert_odom_to_transform(self,pose):
+        q = eigenpy.Quaternion(pose.orientation.w,pose.orientation.x,pose.orientation.y,pose.orientation.z)
+        R = q.toRotationMatrix()
+        v = numpy.array([[pose.position.x,pose.position.y,pose.position.z,1]]).T
+        T = numpy.hstack([numpy.vstack([R,numpy.zeros((1,3))]),v])
+        return T
     
+    def reset_odometry(self):
+        req = ResetPose.Request()
+        myfuture = self._reset_pose_client.call_async(req)
+        rclpy.spin_until_future_complete(self, myfuture)
+        start_time = time.time()
+        while True:
+            if (time.time()-start_time) > 3.:
+                raise Exception("Timeout resetting")
+            self.odom_future = rclpy.Future()
+            pose = self.spin_until_future_complete(self.odom_future).pose.pose
+            if numpy.linalg.norm([pose.position.x,pose.position.y,pose.position.z]) < 1e-3:
+                break
+        # TODO: check result
+    
+    def odom_listener_callback(self, msg):
+        self.last_odom_msg = msg
+        self.odom_future.set_result(msg)
+        self.odom_future.done()
+
     def get_tf_transform(self,parent_frame,child_frame,wait=True,time_in=rclpy.time.Time()):
         if wait:
             myfuture = self.tf_buffer.wait_for_transform_async(parent_frame,child_frame,time_in)
@@ -753,7 +790,7 @@ class Robot(Node):
         img_3D = np.reshape(img_data, (height, width, 3))
         return img_3D
     
-    def ML_predict_stop_sign(model, img):
+    def ML_predict_stop_sign(self, model, img):
         # height, width = image.shape[:2]
         # imgsz = (width, height)
 
