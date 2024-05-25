@@ -5,6 +5,16 @@ import rclpy
 import numpy as np
 import math
 
+def getdirection():
+    
+    try:
+        print(f"Key {key.char} pressed")
+        key_char = key.char
+    except AttributeError:
+        print(f"Special key {key} pressed")
+        key_char = str(key) #---the below cluster of if statements can be removed to make level one more challenging---
+    if key_char == 'w':
+
 #Start ros with initializing the rclpy object
 if not rclpy.ok():
     rclpy.init()
@@ -31,6 +41,10 @@ rclpy.spin_once(robot, timeout_sec=0.1)
 try:
     print("Entering the robot loop which cycles until the srcipt is stopped")
     while True:
+        # Getting the Direction of Movement basefd on keystroke
+         
+
+
         if(robot.detect_obstacle()):
             print("help")
         #rclpy,spin_once is a function that updates the ros topics once

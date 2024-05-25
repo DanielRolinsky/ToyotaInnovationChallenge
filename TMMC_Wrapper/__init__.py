@@ -461,6 +461,9 @@ class Robot(Node):
         else: 
             print("Keyb list is not running")
 
+
+
+
     def on_press(self, key):
         try:
             if hasstr(key, 'char') and key.char in self.action_mape:
@@ -784,3 +787,18 @@ class Robot(Node):
         cv2.imshow("Bounding Box", img)
 
         return stop_sign_detected, x1, y1, x2, y2   
+# Custom Functions
+    #Function to return the direction if it is going forward or backward
+    def get_direction(self):
+        if self.keyboard_listener is None:
+            def on_press(key):
+                try:
+                    print(f"Key {key.char} pressed in new function")
+                    key_char = key.char
+                except AttributeError:
+                    print(f"Special key {key} pressed")
+                    key_char = str(key) #---the below cluster of if statements can be removed to make level one more challenging---
+                if key_char == 'w':
+                    return 1
+                if key_char == 's':
+                    return -1
