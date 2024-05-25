@@ -19,7 +19,7 @@ if not "robot" in globals():
 
 #Debug messaging 
 print("running main")
-
+#Testing of the test
 #start processes
 #add starter functions here
 
