@@ -35,16 +35,12 @@ try:
     print("Entering the robot loop which cycles until the srcipt is stopped")
     while True:
         print("TEST1")
-        robot.reset_odometry() # make the robot think it is at position (0,0,0)
-        print("TEST2")
-
-        # Display raw data: Odometry based position
-        robot.odom_future = rclpy.Future()
-        print("TEST3")
-
-        pose1 = robot.spin_until_future_completed(robot.odom_future).pose.pose
-        print(pose1.position)
-        print(pose1.orientation)
+        # robot.reset_odometry() # make the robot think it is at position (0,0,0)
+        # # Display raw data: Odometry based position
+        # robot.odom_future = rclpy.Future()
+        # pose1 = robot.spin_until_future_completed(robot.odom_future).pose.pose
+        # print(pose1.position)
+        # print(pose1.orientation)
  
 
         img = robot.rosImg_to_cv2()
