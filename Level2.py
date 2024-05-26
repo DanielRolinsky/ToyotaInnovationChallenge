@@ -47,7 +47,7 @@ try:
 
 
         stop_sign_detected, x1, y1, x2, y2 = robot.ML_predict_stop_sign(model, img)
-
+        print("stop sign detected: ", stop_sign_detected)
         distance_to_stop = -1
         if(stop_sign_detected):
             distance_to_stop = ((2*147.6375*640)/((y2-y1)*31.75))
